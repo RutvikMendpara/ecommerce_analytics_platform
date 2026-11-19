@@ -1,0 +1,22 @@
+{
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "tasks.max": "1",
+  "database.hostname": "${env:PGHOST}",
+  "database.port": "${env:PGPORT}",
+  "database.user": "${env:PGUSER}",
+  "database.password": "${env:PGPASSWORD}",
+  "database.dbname": "${env:PGDATABASE}",
+  "topic.prefix": "shop",
+  "plugin.name": "pgoutput",
+  "slot.name": "shop_slot",
+  "publication.name": "shop_pub",
+  "publication.autocreate.mode": "disabled",
+  "snapshot.mode": "initial",
+  "decimal.handling.mode": "string",
+  "tombstones.on.delete": "false",
+  "heartbeat.interval.ms": "60000",
+  "transforms": "unwrap",
+  "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+  "transforms.unwrap.delete.tombstone.handling.mode": "rewrite",
+  "transforms.unwrap.add.fields": "op,lsn,source.ts_ms"
+}
