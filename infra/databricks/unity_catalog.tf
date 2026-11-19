@@ -39,21 +39,18 @@ resource "databricks_external_location" "landing" {
   depends_on      = [aws_iam_role_policy.unity_catalog]
 }
 
-resource "databricks_catalog" "main" {
-  name    = var.catalog
-  comment = "fashion e-commerce analytics"
-}
-
+# The catalog itself is created once in the UI: Free Edition only allows catalogs on Default Storage,
+# which the API can't create.
 resource "databricks_schema" "layers" {
   for_each     = toset(["bronze", "silver", "staging", "gold", "marts"])
-  catalog_name = databricks_catalog.main.name
+  catalog_name = var.catalog
   name         = each.key
 }
 
 # Auto Loader schema + streaming checkpoints
 resource "databricks_volume" "checkpoints" {
   name         = "checkpoints"
-  catalog_name = databricks_catalog.main.name
+  catalog_name = var.catalog
   schema_name  = databricks_schema.layers["bronze"].name
   volume_type  = "MANAGED"
 }
