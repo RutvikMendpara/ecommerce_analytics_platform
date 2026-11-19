@@ -57,3 +57,8 @@ data "aws_caller_identity" "current" {}
 locals {
   uc_role_name = "ecommerce-analytics-unity-catalog"
 }
+
+variable "warehouse_name" {
+  type    = string
+  default = "Serverless Starter Warehouse"
+}

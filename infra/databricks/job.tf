@@ -1,10 +1,6 @@
-resource "databricks_sql_endpoint" "dbt" {
-  name                      = "ecommerce-dbt"
-  cluster_size              = "2X-Small"
-  max_num_clusters          = 1
-  auto_stop_mins            = 10
-  enable_serverless_compute = true
-  warehouse_type            = "PRO"
+# Free Edition allows only one SQL warehouse, so use the one the workspace already has.
+data "databricks_sql_warehouse" "dbt" {
+  name = var.warehouse_name
 }
 
 locals {
@@ -66,7 +62,7 @@ resource "databricks_job" "pipeline" {
     dbt_task {
       project_directory = "dbt"
       commands          = ["dbt build"]
-      warehouse_id      = databricks_sql_endpoint.dbt.id
+      warehouse_id      = data.databricks_sql_warehouse.dbt.id
       catalog           = var.catalog
       schema            = "gold"
     }
@@ -84,5 +80,5 @@ output "job_id" {
 }
 
 output "warehouse_http_path" {
-  value = databricks_sql_endpoint.dbt.odbc_params[0].path
+  value = data.databricks_sql_warehouse.dbt.odbc_params[0].path
 }
