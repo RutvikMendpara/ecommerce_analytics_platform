@@ -1,0 +1,39 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uvx ruff check .
+
+  dbt:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: dummy
+      DATABRICKS_HTTP_PATH: dummy
+      DATABRICKS_TOKEN: dummy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uvx --python 3.12 --from dbt-databricks dbt parse --profiles-dir .
+        working-directory: dbt
+
+  terraform:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        stack: [persistent, session, databricks]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check
+        working-directory: infra/${{ matrix.stack }}
+      - run: terraform init -backend=false && terraform validate
+        working-directory: infra/${{ matrix.stack }}
