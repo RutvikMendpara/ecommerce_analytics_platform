@@ -11,6 +11,11 @@ sources:
       - name: inventory_current
       - name: inventory_changes
       - name: orders_current
+        # warn only: when the AWS side is down the data is stale on purpose
+        config:
+          loaded_at_field: _source_ts
+          freshness:
+            warn_after: {count: 10, period: minute}
       - name: orders_changes
       - name: order_items_current
       - name: payments_current

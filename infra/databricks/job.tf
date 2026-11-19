@@ -64,7 +64,7 @@ resource "databricks_job" "pipeline" {
     dbt_task {
       project_directory = "dbt"
       source            = "GIT"
-      commands          = ["dbt build"]
+      commands          = ["dbt build", "dbt source freshness"]
       warehouse_id      = data.databricks_sql_warehouse.dbt.id
       catalog           = var.catalog
       schema            = "gold"

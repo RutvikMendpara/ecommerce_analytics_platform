@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: fct_order_items
+    columns:
+      - name: order_item_id
+        data_tests: [unique, not_null]
+      # a missing key means the point-in-time join to the SCD2 dims found no version
+      - name: customer_sk
+        data_tests: [not_null]
+      - name: product_sk
+        data_tests: [not_null]
+
+  - name: fct_orders
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["PLACED", "CONFIRMED", "CANCELLED", "SHIPPED", "DELIVERED"]
