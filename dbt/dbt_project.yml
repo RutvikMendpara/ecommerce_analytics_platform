@@ -1,0 +1,20 @@
+name: ecommerce_analytics
+version: "1.0.0"
+profile: ecommerce_analytics
+
+vars:
+  # the made-up "big sale" window, used by dim_date
+  sale_start: "2026-11-19"
+  sale_end: "2026-11-21"
+
+models:
+  ecommerce_analytics:
+    staging:
+      +schema: staging
+      +materialized: view
+    gold:
+      +schema: gold
+      +materialized: table
+    marts:
+      +schema: marts
+      +materialized: table
