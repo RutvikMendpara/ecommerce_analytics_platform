@@ -16,17 +16,9 @@ I built it to practice change data capture, Delta Lake merges and dimensional mo
 6. **Gold and marts** (`dbt/`): a star schema with customer and product dimensions that keep their history (SCD type 2), order/return/session facts, and four marts: daily GMV, funnel, returns by size, and stock-outs.
 7. A Databricks job runs bronze, silver and `dbt build` every 10 minutes.
 
-## Things worth pointing out
-
-- **Applying changes safely.** Silver only applies a change if its log position (LSN) is newer than what's already there. Running the same files twice, or getting an older batch late, doesn't change the result. Deletes are kept as a flag, so a late insert can't bring a deleted row back. `tests/test_silver.py` checks all three cases.
-- **History from the log, not snapshots.** The customer and product dimensions are built from every change Debezium captured. A nightly snapshot would miss a customer who changed city twice in a day.
-- **One GMV number.** `mart_gmv_daily` has `booked_gmv` (everything ordered), `gmv` (minus orders cancelled before shipping) and `net_gmv` (minus refunds). Each is defined once, and a dbt test checks they add up.
-- **Databricks only reads S3.** It never connects to Kafka or Postgres, so there's no network setup between the two, and the files in S3 can be replayed if something needs rebuilding.
-- **Cheap to run.** No NAT gateway. The expensive parts (RDS, MSK, Fargate) live in their own Terraform stack that I create before a run and destroy after.
-
 ## Run it locally
 
-Needs Docker and [uv](https://docs.astral.sh/uv/).
+Needs Docker and uv.
 
 ```bash
 docker compose up -d
@@ -45,11 +37,11 @@ uv run pytest tests
 
 All infrastructure is Terraform in `infra/`, with state stored in the S3 bucket.
 
-| Stack | What's in it |
-|---|---|
-| `persistent` | VPC, Firehose, ECR repos, SNS alerts. No hourly cost. |
-| `session` | RDS Postgres, MSK, Fargate services for the simulator and Kafka Connect. Destroy after use. |
-| `databricks` | Unity Catalog access to the bucket, schemas, the pipeline job. |
+| Stack        | What's in it                                                                                |
+| ------------ | ------------------------------------------------------------------------------------------- |
+| `persistent` | VPC, Firehose, ECR repos, SNS alerts. No hourly cost.                                       |
+| `session`    | RDS Postgres, MSK, Fargate services for the simulator and Kafka Connect. Destroy after use. |
+| `databricks` | Unity Catalog access to the bucket, schemas, the pipeline job.                              |
 
 ```bash
 terraform -chdir=infra/<stack> init -backend-config="bucket=<bucket>"
