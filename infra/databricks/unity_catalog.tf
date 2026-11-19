@@ -45,6 +45,8 @@ resource "databricks_schema" "layers" {
   for_each     = toset(["bronze", "silver", "staging", "gold", "marts"])
   catalog_name = var.catalog
   name         = each.key
+  # let terraform destroy drop the tables inside too
+  force_destroy = true
 }
 
 # Auto Loader schema + streaming checkpoints
