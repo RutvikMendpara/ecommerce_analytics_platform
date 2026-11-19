@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: mart_gmv_daily
+    description: Daily GMV by category, brand and customer city. The dashboard headline is `gmv`.
+    columns:
+      - name: booked_gmv
+        description: "Marketing. selling_price x qty for every item placed, including later cancellations."
+      - name: gmv
+        description: "Headline GMV. selling_price x qty for items placed, excluding orders cancelled before shipping."
+      - name: net_gmv
+        description: "Finance. GMV minus refunds for returned items, counted on the order date."
