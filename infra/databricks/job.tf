@@ -37,6 +37,7 @@ resource "databricks_job" "pipeline" {
     environment_key = "default"
     spark_python_task {
       python_file = "lakehouse/bronze.py"
+      source      = "GIT"
       parameters  = ["--catalog", var.catalog, "--landing", "s3://${var.lake_bucket}/landing", "--checkpoints", "${local.checkpoints}/bronze"]
     }
   }
@@ -49,6 +50,7 @@ resource "databricks_job" "pipeline" {
     }
     spark_python_task {
       python_file = "lakehouse/silver.py"
+      source      = "GIT"
       parameters  = ["--catalog", var.catalog, "--checkpoints", "${local.checkpoints}/silver"]
     }
   }
@@ -61,6 +63,7 @@ resource "databricks_job" "pipeline" {
     }
     dbt_task {
       project_directory = "dbt"
+      source            = "GIT"
       commands          = ["dbt build"]
       warehouse_id      = data.databricks_sql_warehouse.dbt.id
       catalog           = var.catalog
