@@ -1,0 +1,28 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+*.tfplan
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# dbt
+target/
+dbt_packages/
+logs/
+
+# Secrets / local
+.env
+.databrickscfg
+.DS_Store
+
+ecommerce_analytics_platform_design.md
+# local clickstream output
+data/
