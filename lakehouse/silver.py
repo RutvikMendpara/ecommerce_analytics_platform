@@ -24,7 +24,8 @@ PRIMARY_KEYS = {
     "payments": ["payment_id"],
     "returns": ["return_id"],
 }
-BRONZE_ONLY_COLUMNS = ["_file_name", "_ingested_at", "_rescued_data"]
+# dt/hour come from the landing folder names (Auto Loader adds them as columns)
+BRONZE_ONLY_COLUMNS = ["_file_name", "_ingested_at", "_rescued_data", "dt", "hour"]
 
 
 def prepare_changes(df, pk):
@@ -53,7 +54,6 @@ def merge_into(spark, df, table, on):
 
 def apply_cdc(spark, batch_df, table, pk, catalog):
     changes = prepare_changes(batch_df, pk)
-    changes.persist()
     on = " AND ".join(f"t.{c} = s.{c}" for c in pk)
 
     (
@@ -72,7 +72,6 @@ def apply_cdc(spark, batch_df, table, pk, catalog):
         .whenNotMatchedInsertAll()
         .execute()
     )
-    changes.unpersist()
 
 
 def apply_clickstream(spark, batch_df, catalog):
